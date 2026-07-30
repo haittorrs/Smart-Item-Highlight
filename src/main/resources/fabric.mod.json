@@ -3,7 +3,7 @@
 	"id": "smart-item-highlight",
 	"version": "${version}",
 	"name": "Smart Item Highlight",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "Highlights every matching item in an open container and the player's inventory when an item is held by the cursor.",
 	"authors": [
 		"Me!"
 	],

@@ -8,7 +8,7 @@ import net.minecraft.world.item.ItemStack;
 
 public final class SlotHighlightRenderer {
 
-    private static final int HIGHLIGHT_COLOR = 0xFF55FF55;
+    private static final int HIGHLIGHT_COLOR = 0x6655FF55;
 
     private SlotHighlightRenderer() {
         // Prevent this utility class from being instantiated.
@@ -50,49 +50,22 @@ public final class SlotHighlightRenderer {
             int slotX = guiLeft + slot.x;
             int slotY = guiTop + slot.y;
 
-            drawBorder(graphics, slotX, slotY);
+            drawOverlay(graphics, slotX, slotY);
         }
     }
 
-    private static void drawBorder(
+    private static void drawOverlay(
             GuiGraphicsExtractor graphics,
             int x,
             int y
     ) {
-        // Top border
         graphics.fill(
-                x - 1,
-                y - 1,
-                x + 17,
-                y + 1,
-                HIGHLIGHT_COLOR
-        );
-
-        // Bottom border
-        graphics.fill(
-                x - 1,
-                y + 15,
-                x + 17,
-                y + 17,
-                HIGHLIGHT_COLOR
-        );
-
-        // Left border
-        graphics.fill(
-                x - 1,
-                y + 1,
-                x + 1,
-                y + 15,
-                HIGHLIGHT_COLOR
-        );
-
-        // Right border
-        graphics.fill(
-                x + 15,
-                y + 1,
-                x + 17,
-                y + 15,
+                x,
+                y,
+                x + 16,
+                y + 16,
                 HIGHLIGHT_COLOR
         );
     }
+
 }
