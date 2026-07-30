@@ -1,0 +1,38 @@
+{
+	"schemaVersion": 1,
+	"id": "smart-item-highlight",
+	"version": "${version}",
+	"name": "Smart Item Highlight",
+	"description": "This is an example description! Tell everyone what your mod is about!",
+	"authors": [
+		"Me!"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/smart-item-highlight/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.haittorr.smartitemhighlight.SmartItemHighlight"
+		],
+		"client": [
+			"com.haittorr.smartitemhighlight.client.SmartItemHighlightClient"
+		]
+	},
+	"mixins": [
+		"smart-item-highlight.mixins.json",
+		{
+			"config": "smart-item-highlight.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.19.3",
+		"minecraft": "~26.2",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}
