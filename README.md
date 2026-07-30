@@ -174,4 +174,4 @@ This project is distributed under the licence included in the [`LICENSE`](LICENS
 
 ## Credits
 
-Smart Item Highlight was developed by **Haittorr** with the assistance of AI tools.
+Smart Item Highlight was developed by **@haittorrs** with the assistance of AI tools.
