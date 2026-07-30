@@ -1,0 +1,10 @@
+{
+  "required": true,
+  "package": "com.haittorr.smartitemhighlight.client.mixin",
+  "client": [
+    "AbstractContainerScreenAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
