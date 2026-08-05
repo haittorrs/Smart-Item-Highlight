@@ -1,7 +1,20 @@
-plugins {
-	id 'net.fabricmc.fabric-loom' version "${loom_version}"
-	id 'maven-publish'
+buildscript {
+	repositories {
+		maven { url = "https://maven.fabricmc.net/" }
+		gradlePluginPortal()
+	}
+	dependencies {
+		classpath "net.fabricmc:fabric-loom:${loom_version}"
+	}
 }
+
+def minecraftVersion = project.minecraft_version.toString()
+def legacyMinecraft = minecraftVersion == "1.21.11"
+def javaVersion = legacyMinecraft ? 21 : 25
+def minecraftRequirement = project.minecraft_requirement.toString()
+
+apply plugin: legacyMinecraft ? "fabric-loom" : "net.fabricmc.fabric-loom"
+apply plugin: "maven-publish"
 
 version = project.mod_version
 group = project.maven_group
@@ -28,23 +41,35 @@ loom {
 dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
-
-	// Fabric API. This is technically optional, but you probably want it anyway.
-	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+	if (legacyMinecraft) {
+		mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+	}
+	if (legacyMinecraft) {
+		modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+		modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+	} else {
+		implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+		implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+	}
 }
 
 processResources {
 	def version = project.version
 	inputs.property "version", version
+	inputs.property "minecraft_requirement", minecraftRequirement
+	inputs.property "java_version", javaVersion
 
 	filesMatching("fabric.mod.json") {
-		expand "version": version
+		expand(
+				"version": version,
+				"minecraft_requirement": minecraftRequirement,
+				"java_version": javaVersion
+		)
 	}
 }
 
 tasks.withType(JavaCompile).configureEach {
-	it.options.release = 25
+	it.options.release = javaVersion
 }
 
 java {
@@ -53,8 +78,14 @@ java {
 	// If you remove this line, sources will not be generated.
 	withSourcesJar()
 
-	sourceCompatibility = JavaVersion.VERSION_25
-	targetCompatibility = JavaVersion.VERSION_25
+	sourceCompatibility = JavaVersion.toVersion(javaVersion)
+	targetCompatibility = JavaVersion.toVersion(javaVersion)
+}
+
+if (legacyMinecraft) {
+	sourceSets.client.java {
+		setSrcDirs(["src/legacy12111/java"])
+	}
 }
 
 jar {
@@ -64,6 +95,72 @@ jar {
 	from("LICENSE") {
 		rename { "${it}_$projectName"}
 	}
+}
+
+tasks.named("jar") {
+	archiveBaseName = "smart-item-highlight-${minecraftVersion}"
+}
+
+tasks.named("sourcesJar") {
+	archiveBaseName = "smart-item-highlight-${minecraftVersion}"
+}
+
+tasks.matching { it.name in ["remapJar", "remapSourcesJar"] }.configureEach {
+	archiveBaseName = "smart-item-highlight-${minecraftVersion}"
+}
+
+def versionBuilds = [
+		"1.21.11": [
+				fabricApi: "0.141.1+1.21.11",
+				loader: "0.18.1",
+				loom: "1.14-SNAPSHOT",
+				requirement: "~1.21.11"
+		],
+		"26.1": [
+				fabricApi: "0.145.1+26.1",
+				loader: "0.19.3",
+				loom: "1.17-SNAPSHOT",
+				requirement: ">=26.1 <26.2"
+		],
+		"26.2": [
+				fabricApi: "0.156.0+26.2",
+				loader: "0.19.3",
+				loom: "1.17-SNAPSHOT",
+				requirement: "~26.2"
+		]
+]
+
+versionBuilds.each { targetVersion, target ->
+	def taskSuffix = targetVersion.replace(".", "_")
+	tasks.register("buildMinecraft${taskSuffix}", Exec) {
+		group = "build"
+		description = "Builds Smart Item Highlight for Minecraft ${targetVersion}."
+		workingDir project.projectDir
+		commandLine(
+				"./gradlew",
+				"build",
+				"-Ploom_version=${target.loom}",
+				"-Pminecraft_version=${targetVersion}",
+				"-Pfabric_api_version=${target.fabricApi}",
+				"-Ploader_version=${target.loader}",
+				"-Pminecraft_requirement=${target.requirement}",
+				"-Pyarn_mappings=${project.yarn_mappings}"
+		)
+	}
+}
+
+tasks.named("buildMinecraft26_1") {
+	mustRunAfter "buildMinecraft1_21_11"
+}
+
+tasks.named("buildMinecraft26_2") {
+	mustRunAfter "buildMinecraft26_1"
+}
+
+tasks.register("buildAllVersions") {
+	group = "build"
+	description = "Builds supported JARs for Minecraft 1.21.11 through 26.2."
+	dependsOn "buildMinecraft1_21_11", "buildMinecraft26_1", "buildMinecraft26_2"
 }
 
 // configure the maven publication

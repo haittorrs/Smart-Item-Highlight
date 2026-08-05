@@ -32,7 +32,7 @@ Support for modded storage screens may depend on how those screens are implement
 
 ## Requirements
 
-* Minecraft 26.2
+* Minecraft 1.21.11, 26.1.x or 26.2.x
 * Fabric Loader
 * Fabric API
 
@@ -40,9 +40,9 @@ The mod only needs to be installed on the player's client. It does not need to b
 
 ## Installation
 
-1. Install Fabric Loader for Minecraft 26.2.
+1. Install Fabric Loader for your Minecraft version.
 2. Download and install Fabric API.
-3. Download the latest Smart Item Highlight `.jar` file.
+3. Download the Smart Item Highlight `.jar` whose filename matches your Minecraft version.
 4. Place the `.jar` file inside your Minecraft `mods` folder.
 5. Launch Minecraft using the Fabric profile.
 
@@ -79,7 +79,7 @@ For example, holding one diamond pickaxe will highlight other diamond pickaxes, 
 
 ### Requirements
 
-* Java Development Kit 25
+* Java Development Kit 25 (also produces Java 21 bytecode for the 1.21.11 build)
 * Git
 
 Clone the repository:
@@ -89,17 +89,19 @@ git clone https://github.com/YOUR-USERNAME/smart-item-highlight.git
 cd smart-item-highlight
 ```
 
-Build the project on Windows:
+Build all supported versions on Windows:
 
 ```bat
-gradlew.bat build
+gradlew.bat buildAllVersions
 ```
 
-Build the project on Linux or macOS:
+Build all supported versions on Linux or macOS:
 
 ```bash
-./gradlew build
+./gradlew buildAllVersions
 ```
+
+Running the regular `build` task builds the default Minecraft 26.2 artifact only.
 
 The compiled mod will be created inside:
 
@@ -107,7 +109,13 @@ The compiled mod will be created inside:
 build/libs
 ```
 
-Use the `.jar` file that does not include `-sources` in its filename.
+The versioned release JARs are:
+
+* `smart-item-highlight-1.21.11-<mod-version>.jar`
+* `smart-item-highlight-26.1-<mod-version>.jar` (supports the 26.1.x line)
+* `smart-item-highlight-26.2-<mod-version>.jar` (supports the 26.2.x line)
+
+Use the `.jar` files that do not include `-sources` in their filenames.
 
 ## Project Structure
 
@@ -130,6 +138,12 @@ smart-item-highlight
 │   └── main
 │       └── resources
 │           └── fabric.mod.json
+│   └── legacy12111
+│       └── java
+│           └── com/haittorr/smartitemhighlight/client
+│               ├── SmartItemHighlightClient.java
+│               ├── mixin/AbstractContainerScreenAccessor.java
+│               └── render/SlotHighlightRenderer.java
 ├── build.gradle
 ├── gradle.properties
 ├── gradlew
